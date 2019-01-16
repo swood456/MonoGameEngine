@@ -70,28 +70,11 @@ namespace TestMonoGame
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            InputManager input = new InputManager();
+
             // TODO: Add your update logic here
-            var kState = Keyboard.GetState();
-
-            if (kState.IsKeyDown(Keys.Up))
-            {
-                ballPosition.Y -= ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            }
-
-            if (kState.IsKeyDown(Keys.Down))
-            {
-                ballPosition.Y += ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            }
-
-            if (kState.IsKeyDown(Keys.Left))
-            {
-                ballPosition.X -= ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            }
-
-            if (kState.IsKeyDown(Keys.Right))
-            {
-                ballPosition.X += ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            }
+            ballPosition.X += input.HorizontalInput * ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            ballPosition.Y += -input.VerticalInput * ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             ballPosition.X = MathHelper.Min(MathHelper.Max(textureBall.Width / 2, ballPosition.X), graphics.PreferredBackBufferWidth - textureBall.Width / 2);
             ballPosition.Y = MathHelper.Min(MathHelper.Max(textureBall.Height / 2, ballPosition.Y), graphics.PreferredBackBufferHeight - textureBall.Height/ 2);
