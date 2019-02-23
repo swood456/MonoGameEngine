@@ -35,6 +35,18 @@ namespace TestMonoGame
                 graphics.PreferredBackBufferHeight / 2);
             ballSpeed = 100f;
 
+            InputManager.Instance.addAxisKey(InputAxes.PrimaryVertical, Keys.W, true);
+            InputManager.Instance.addAxisKey(InputAxes.PrimaryVertical, Keys.Up, true);
+
+            InputManager.Instance.addAxisKey(InputAxes.PrimaryVertical, Keys.S, false);
+            InputManager.Instance.addAxisKey(InputAxes.PrimaryVertical, Keys.Down, false);
+
+            InputManager.Instance.addAxisKey(InputAxes.PrimaryHorizontal, Keys.D, true);
+            InputManager.Instance.addAxisKey(InputAxes.PrimaryHorizontal, Keys.Right, true);
+
+            InputManager.Instance.addAxisKey(InputAxes.PrimaryHorizontal, Keys.A, false);
+            InputManager.Instance.addAxisKey(InputAxes.PrimaryHorizontal, Keys.Left, false);
+
             base.Initialize();
         }
 
@@ -70,11 +82,10 @@ namespace TestMonoGame
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            InputManager input = new InputManager();
+            InputManager.Instance.setInput();
 
-            // TODO: Add your update logic here
-            ballPosition.X += input.HorizontalInput * ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            ballPosition.Y += -input.VerticalInput * ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            ballPosition.X += InputManager.Instance.getAxis(InputAxes.PrimaryHorizontal) * ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            ballPosition.Y += -InputManager.Instance.getAxis(InputAxes.PrimaryVertical) * ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             ballPosition.X = MathHelper.Min(MathHelper.Max(textureBall.Width / 2, ballPosition.X), graphics.PreferredBackBufferWidth - textureBall.Width / 2);
             ballPosition.Y = MathHelper.Min(MathHelper.Max(textureBall.Height / 2, ballPosition.Y), graphics.PreferredBackBufferHeight - textureBall.Height/ 2);
