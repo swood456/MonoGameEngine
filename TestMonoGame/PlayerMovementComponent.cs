@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TestMonoGame
 {
-    class PlayerMovementComponent : BehaviorComponent
+    class PlayerMovementComponent : Component
     {
         public PlayerMovementComponent(GameObject gameObject) : base(gameObject) { }
         private float ballSpeed = 100f;

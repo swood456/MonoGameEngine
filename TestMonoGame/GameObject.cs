@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +27,7 @@ namespace TestMonoGame
 
         internal List<Component> Components { get => components; set => components = value; }
         public Vector2 Position { get => position; set => position = value; }
+        internal Renderer Renderer { get => renderer; set => renderer = value; }
 
         public void Update(GameTime gameTime)
         {
@@ -35,14 +37,9 @@ namespace TestMonoGame
             }
         }
 
-        //public void addComponent(Component component)
-        //{
-        //    components.Add(component);
-        //}
-
-        public void Render()
+        public void Render(SpriteBatch spriteBatch)
         {
-            renderer.Render();
+            Renderer.Render(spriteBatch);
         }
     }
 }

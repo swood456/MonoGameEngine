@@ -9,7 +9,6 @@ namespace TestMonoGame
     /// </summary>
     public class Game1 : Game
     {
-        Texture2D textureBall;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
@@ -30,11 +29,9 @@ namespace TestMonoGame
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            Vector2 ballPosition = new Vector2(
+            ballObject = new GameObject(new Vector2(
                 graphics.PreferredBackBufferWidth / 2,
-                graphics.PreferredBackBufferHeight / 2);
-
-            ballObject = new GameObject(ballPosition);
+                graphics.PreferredBackBufferHeight / 2));
 
             PlayerMovementComponent movementComponent = new PlayerMovementComponent(ballObject);
             ballObject.Components.Add(movementComponent);
@@ -64,7 +61,7 @@ namespace TestMonoGame
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-            textureBall = Content.Load<Texture2D>("ball");
+            ballObject.Renderer = new SpriteRenderer(ballObject, Content.Load<Texture2D>("ball"));
         }
 
         /// <summary>
@@ -103,7 +100,7 @@ namespace TestMonoGame
 
             // TODO: Add your drawing code here
             spriteBatch.Begin();
-            spriteBatch.Draw(textureBall, ballObject.Position, null, Color.White, 0f, new Vector2(textureBall.Width / 2, textureBall.Height / 2), Vector2.One, SpriteEffects.None, 0f);
+            ballObject.Render(spriteBatch);
             spriteBatch.End();
             
             base.Draw(gameTime);

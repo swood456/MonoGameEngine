@@ -7,8 +7,14 @@ using System.Threading.Tasks;
 
 namespace TestMonoGame
 {
-    interface Component
+    abstract class Component
     {
-        void Update(GameTime gameTime);
+        protected readonly GameObject gameObject;
+        public Component(GameObject gameObject)
+        {
+            this.gameObject = gameObject;
+        }
+
+        public abstract void Update(GameTime gameTime);
     }
 }
