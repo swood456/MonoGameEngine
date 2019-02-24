@@ -10,10 +10,10 @@ namespace TestMonoGame
     public class Game1 : Game
     {
         Texture2D textureBall;
-        Vector2 ballPosition;
-        float ballSpeed;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+
+        GameObject ballObject;
         
         public Game1()
         {
@@ -30,10 +30,14 @@ namespace TestMonoGame
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            ballPosition = new Vector2(
+            Vector2 ballPosition = new Vector2(
                 graphics.PreferredBackBufferWidth / 2,
                 graphics.PreferredBackBufferHeight / 2);
-            ballSpeed = 100f;
+
+            ballObject = new GameObject(ballPosition);
+
+            PlayerMovementComponent movementComponent = new PlayerMovementComponent(ballObject);
+            ballObject.Components.Add(movementComponent);
 
             InputManager.Instance.addAxisKey(InputAxes.PrimaryVertical, Keys.W, true);
             InputManager.Instance.addAxisKey(InputAxes.PrimaryVertical, Keys.Up, true);
@@ -84,11 +88,7 @@ namespace TestMonoGame
 
             InputManager.Instance.setInput();
 
-            ballPosition.X += InputManager.Instance.getAxis(InputAxes.PrimaryHorizontal) * ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            ballPosition.Y += -InputManager.Instance.getAxis(InputAxes.PrimaryVertical) * ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            ballPosition.X = MathHelper.Min(MathHelper.Max(textureBall.Width / 2, ballPosition.X), graphics.PreferredBackBufferWidth - textureBall.Width / 2);
-            ballPosition.Y = MathHelper.Min(MathHelper.Max(textureBall.Height / 2, ballPosition.Y), graphics.PreferredBackBufferHeight - textureBall.Height/ 2);
+            ballObject.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -103,7 +103,7 @@ namespace TestMonoGame
 
             // TODO: Add your drawing code here
             spriteBatch.Begin();
-            spriteBatch.Draw(textureBall, ballPosition, null, Color.White, 0f, new Vector2(textureBall.Width / 2, textureBall.Height / 2), Vector2.One, SpriteEffects.None, 0f);
+            spriteBatch.Draw(textureBall, ballObject.Position, null, Color.White, 0f, new Vector2(textureBall.Width / 2, textureBall.Height / 2), Vector2.One, SpriteEffects.None, 0f);
             spriteBatch.End();
             
             base.Draw(gameTime);
