@@ -9,11 +9,10 @@ namespace TestMonoGame
     /// </summary>
     public class Game1 : Game
     {
-        Texture2D textureBall;
-        Vector2 ballPosition;
-        float ballSpeed;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+
+        GameObject ballObject;
         
         public Game1()
         {
@@ -30,10 +29,24 @@ namespace TestMonoGame
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            ballPosition = new Vector2(
+            ballObject = new GameObject(new Vector2(
                 graphics.PreferredBackBufferWidth / 2,
-                graphics.PreferredBackBufferHeight / 2);
-            ballSpeed = 100f;
+                graphics.PreferredBackBufferHeight / 2));
+
+            PlayerMovementComponent movementComponent = new PlayerMovementComponent(ballObject);
+            ballObject.Components.Add(movementComponent);
+
+            InputManager.Instance.addAxisKey(InputAxes.PrimaryVertical, Keys.W, true);
+            InputManager.Instance.addAxisKey(InputAxes.PrimaryVertical, Keys.Up, true);
+
+            InputManager.Instance.addAxisKey(InputAxes.PrimaryVertical, Keys.S, false);
+            InputManager.Instance.addAxisKey(InputAxes.PrimaryVertical, Keys.Down, false);
+
+            InputManager.Instance.addAxisKey(InputAxes.PrimaryHorizontal, Keys.D, true);
+            InputManager.Instance.addAxisKey(InputAxes.PrimaryHorizontal, Keys.Right, true);
+
+            InputManager.Instance.addAxisKey(InputAxes.PrimaryHorizontal, Keys.A, false);
+            InputManager.Instance.addAxisKey(InputAxes.PrimaryHorizontal, Keys.Left, false);
 
             base.Initialize();
         }
@@ -48,7 +61,7 @@ namespace TestMonoGame
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-            textureBall = Content.Load<Texture2D>("ball");
+            ballObject.Renderer = new SpriteRenderer(ballObject, Content.Load<Texture2D>("ball"));
         }
 
         /// <summary>
@@ -70,31 +83,9 @@ namespace TestMonoGame
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
-            var kState = Keyboard.GetState();
+            InputManager.Instance.setInput();
 
-            if (kState.IsKeyDown(Keys.Up))
-            {
-                ballPosition.Y -= ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            }
-
-            if (kState.IsKeyDown(Keys.Down))
-            {
-                ballPosition.Y += ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            }
-
-            if (kState.IsKeyDown(Keys.Left))
-            {
-                ballPosition.X -= ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            }
-
-            if (kState.IsKeyDown(Keys.Right))
-            {
-                ballPosition.X += ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            }
-
-            ballPosition.X = MathHelper.Min(MathHelper.Max(textureBall.Width / 2, ballPosition.X), graphics.PreferredBackBufferWidth - textureBall.Width / 2);
-            ballPosition.Y = MathHelper.Min(MathHelper.Max(textureBall.Height / 2, ballPosition.Y), graphics.PreferredBackBufferHeight - textureBall.Height/ 2);
+            ballObject.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -109,9 +100,9 @@ namespace TestMonoGame
 
             // TODO: Add your drawing code here
             spriteBatch.Begin();
-            spriteBatch.Draw(textureBall, ballPosition, null, Color.White, 0f, new Vector2(textureBall.Width / 2, textureBall.Height / 2), Vector2.One, SpriteEffects.None, 0f);
+            ballObject.Render(spriteBatch);
             spriteBatch.End();
-
+            
             base.Draw(gameTime);
         }
     }
