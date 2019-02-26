@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
 
 namespace TestMonoGame
 {
@@ -11,7 +12,6 @@ namespace TestMonoGame
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-
         GameObject ballObject;
         
         public Game1()
@@ -36,18 +36,6 @@ namespace TestMonoGame
             PlayerMovementComponent movementComponent = new PlayerMovementComponent(ballObject);
             ballObject.Components.Add(movementComponent);
 
-            InputManager.Instance.addAxisKey(InputAxes.PrimaryVertical, Keys.W, true);
-            InputManager.Instance.addAxisKey(InputAxes.PrimaryVertical, Keys.Up, true);
-
-            InputManager.Instance.addAxisKey(InputAxes.PrimaryVertical, Keys.S, false);
-            InputManager.Instance.addAxisKey(InputAxes.PrimaryVertical, Keys.Down, false);
-
-            InputManager.Instance.addAxisKey(InputAxes.PrimaryHorizontal, Keys.D, true);
-            InputManager.Instance.addAxisKey(InputAxes.PrimaryHorizontal, Keys.Right, true);
-
-            InputManager.Instance.addAxisKey(InputAxes.PrimaryHorizontal, Keys.A, false);
-            InputManager.Instance.addAxisKey(InputAxes.PrimaryHorizontal, Keys.Left, false);
-
             base.Initialize();
         }
 
@@ -71,6 +59,7 @@ namespace TestMonoGame
         protected override void UnloadContent()
         {
             // TODO: Unload any non ContentManager content here
+            InputManager.Instance.saveInputConfig();
         }
 
         /// <summary>

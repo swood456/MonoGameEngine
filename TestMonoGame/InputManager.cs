@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Input;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace TestMonoGame
 {
@@ -21,13 +24,61 @@ namespace TestMonoGame
 
         private InputManager()
         {
+            // TODO: refactor this code, very sloppy
             axisValues = new Dictionary<InputAxes, float>();
             buttonValues = new Dictionary<InputButtons, bool>();
-            axisKeyDirections = new Dictionary<Keys, bool>();
 
-            axisKeyMap = new Dictionary<InputAxes, HashSet<Keys>>();
-            buttonKeyMap = new Dictionary<InputButtons, HashSet<Keys>>();
+            JObject inputJson;
+            try
+            {
+                inputJson = JObject.Parse(File.ReadAllText("input_settings.json"));
+            } catch
+            {
+                inputJson = new JObject();
+            }
+            
+            JToken axisKeyToken;
+            bool axisSetup = false;
+            if (inputJson.TryGetValue("axisKeyMap", out axisKeyToken))
+            {
+                axisKeyMap = axisKeyToken.ToObject<Dictionary<InputAxes, HashSet<Keys>>>();
+                JToken axisDirectionsToken;
+                if (inputJson.TryGetValue("axisKeyDirections", out axisDirectionsToken))
+                {
+                    axisSetup = true;
+                    axisKeyDirections = axisDirectionsToken.ToObject<Dictionary<Keys, bool>>();
+                }
+            }
+            if (!axisSetup)
+            {
+                axisKeyDirections = new Dictionary<Keys, bool>();
+                axisKeyMap = new Dictionary<InputAxes, HashSet<Keys>>();
+
+                // set up default axis key controls
+                addAxisKey(InputAxes.PrimaryVertical, Keys.W, true);
+                addAxisKey(InputAxes.PrimaryVertical, Keys.Up, true);
+
+                addAxisKey(InputAxes.PrimaryVertical, Keys.S, false);
+                addAxisKey(InputAxes.PrimaryVertical, Keys.Down, false);
+
+                addAxisKey(InputAxes.PrimaryHorizontal, Keys.D, true);
+                addAxisKey(InputAxes.PrimaryHorizontal, Keys.Right, true);
+
+                addAxisKey(InputAxes.PrimaryHorizontal, Keys.A, false);
+                addAxisKey(InputAxes.PrimaryHorizontal, Keys.Left, false);
+            }
+
+            JToken buttonKeyToken;
+            if (inputJson.TryGetValue("buttonKeyMap", out buttonKeyToken))
+            {
+                buttonKeyMap = buttonKeyToken.ToObject<Dictionary<InputButtons, HashSet<Keys>>>();
+            } else
+            {
+                buttonKeyMap = new Dictionary<InputButtons, HashSet<Keys>>();
+                // set up default buttons
+            }
         }
+
 
         public void setInput()
         {
@@ -39,8 +90,6 @@ namespace TestMonoGame
             foreach (KeyValuePair<InputAxes, HashSet<Keys>> axisPair in axisKeyMap)
             {
                 float axisValue = 0.0f;
-
-                // TODO: figure out how I am storing negative valued items, ideally in an intelligent way
 
                 foreach (Keys button in axisPair.Value)
                 {
@@ -100,28 +149,48 @@ namespace TestMonoGame
             return result;
         }
 
-        public void addAxisKey(InputAxes axis, Keys button, bool isPositive)
+        public void addAxisKey(InputAxes axis, Keys key, bool isPositive)
         {
-            HashSet<Keys> axisButtons;
-            if (!axisKeyMap.TryGetValue(axis, out axisButtons))
+            HashSet<Keys> axisKeys;
+            if (!axisKeyMap.TryGetValue(axis, out axisKeys))
             {
-                axisButtons = new HashSet<Keys>();
+                axisKeys = new HashSet<Keys>();
             }
-            if(axisButtons.Add(button))
+            if(axisKeys.Add(key))
             {
-                axisKeyMap[axis] = axisButtons;
-                axisKeyDirections.Add(button, isPositive);
+                axisKeyMap[axis] = axisKeys;
+                axisKeyDirections.Add(key, isPositive);
             }
         }
 
-        // TODO: remove axis and add+remove for buttons
+        public void addButtonKey(InputButtons button, Keys key)
+        {
+            HashSet<Keys> keys;
+            if (!buttonKeyMap.TryGetValue(button, out keys))
+            {
+                keys = new HashSet<Keys>();
+            }
+            if(keys.Add(key))
+            {
+                buttonKeyMap[button] = keys;
+            }
+        }
 
-        // design outward facing part before designing representation
-        // copying unity's get axis thru string is bad, allows for too much user error
-        // should have axes that return floats and buttons that return bools
-        // eventually need to support onDown, onUp, isPressed, etc possibly.
+        public void saveInputConfig()
+        {
+            using (StreamWriter file = File.CreateText(@"input_settings.json"))
+            {
+                JsonSerializer serializer = new JsonSerializer();
+                Dictionary<String, Object> inputSettingsJson = new Dictionary<String, Object>();
+                inputSettingsJson.Add("axisKeyMap", axisKeyMap);
+                inputSettingsJson.Add("axisKeyDirections", axisKeyDirections);
+                inputSettingsJson.Add("buttonKeyMap", buttonKeyMap);
+                serializer.Serialize(file, inputSettingsJson);
+            }
+        }
 
-        // hard-coding all the values is really bad, make button enum and axis enum
+        // TODO: remove/unmap keys
+        
     }
 
 }
